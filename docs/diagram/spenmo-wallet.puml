@@ -1,0 +1,70 @@
+@startuml spenmo-wallet
+
+!theme materia-outline
+
+' Entity
+entity Team {
+  * id: UUID
+  --
+  name: VARCHAR
+  * is_deleted: BOOLEAN
+  * created_at: TIMESTAMP
+  * updated_at: TIMESTAMP
+}
+
+entity TeamMember {
+  * id: UUID
+  --
+  * team_id: UUID <<FK>>
+  * user_id: UUID <<FK>>
+  * is_deleted: BOOLEAN
+  * created_at: TIMESTAMP
+  * updated_at: TIMESTAMP
+}
+
+entity User {
+  * id: UUID
+  --
+  * email: VARCHAR
+  * name: VARCHAR
+  * is_deleted: BOOLEAN
+  * created_at: TIMESTAMP
+  * updated_at: TIMESTAMP
+}
+
+entity Wallet {
+  * id: UUID
+  --
+  * balance: NUMERIC
+  daily_limit: NUMERIC
+  monthly_limit: NUMERIC
+  team_id: UUID <<FK>>
+  user_id: UUID <<FK>>
+  * is_deleted: BOOLEAN
+  * created_at: TIMESTAMP
+  * updated_at: TIMESTAMP
+}
+
+entity Card {
+  * id: UUID
+  --
+  card_no: VARCHAR
+  expiry_month: VARCHAR
+  expiry_year: VARCHAR
+  cvv: VARCHAR
+  daily_limit: NUMERIC
+  monthly_limit: NUMERIC
+  * wallet_id: UUID <<FK>>
+  * is_deleted: BOOLEAN
+  * created_at: TIMESTAMP
+  * updated_at: TIMESTAMP
+}
+
+' Relationship
+Team        ||--|{  TeamMember
+TeamMember  }|--||  User
+User        ||--|{  Wallet
+Wallet      ||--|{  Card
+Team        ||--|{  Wallet
+
+@enduml

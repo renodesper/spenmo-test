@@ -1,0 +1,16 @@
+[app]
+env = "production"
+scheme = "http"
+host = "127.0.0.1"
+port = 8000
+version = "0.0.1"
+
+[db]
+username = "user"
+password = "password"
+host = "127.0.0.1"
+port = 5432
+name = "spenmo"
+
+[log]
+level = "info"
