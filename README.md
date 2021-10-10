@@ -1,6 +1,6 @@
 # Summary
 
-...
+This project was created as an assignment for a technical test in specific company.
 
 ## Setup database
 
