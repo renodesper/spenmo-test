@@ -1,6 +1,54 @@
 # Summary
 
-This project was created as an assignment for a technical test in specific company.
+This project was made especially as a requirement for passing the technical test in Spenmo. It is a simple golang application that allows us to create a team/individual wallet where each wallet may has multiple cards.
+
+## Constraints and Assumptions
+
+- Client makes a read or write request
+- Service does processing, stores data, then returns the results
+- Service needs to evolve from serving a small amount of users to a lot of users
+- Service has high availability
+
+## System Design Plan
+
+The project is written in golang and uses the following technologies:
+
+- Gokit (a toolkit for microservices)
+- PostgreSQL (database)
+
+The uses of Gokit was decided since its design is well suited with modern software design like elegant monolith and microservices. Aside from that, it is also a toolkit that I am familiar with. Since Gokit also support the separation of concerns, the project can be easily divided into multiple layers based on the Service Layer pattern. The project is divided into the following layer groups:
+
+- Transport layer, which is responsible for the communication between the application and the rest of the internet (HTTP, Grpc, etc).
+- Endpoint layer, which is responsible in implementing the transport into a business logic, with endpoint we can have two different transport to access a specific business logic.
+- Service layer, which is responsible for the business logic.
+
+The implementation of all those layers abide to the Clean Code architecture and Hexagonal architecture.
+
+### Starts As Monolith
+
+For the sake of simplicity, the project is assumed to be a monolith. This means that we can run the project as a single service, either as a static binary in a vps or as a container in docker. We can even put the database in a similar box.
+
+When we need to scale it, we can do vertical scalling by adding more power. Since the resources are limited (a single box), we can easily monitor the metrics of the box to determine bottlenecks.
+
+### Starts As Microservice
+
+Once the users grow, we can deploy each part of the project as a microservice. We can start scaling each service horizontally based on its traffic. Deploying the services as containers will make the scaling easier.
+
+We separate each table on the previous database into a separate database. Each service will own its own database and other services cannot directly access the database. Each service can also be splitted into multiple services based on its task, read or write (CQRS pattern). This will allow us to use a different database between the read (replica) and write (master) services.
+
+Since the project has grown into multiple services, we also need to make sure the services can only be accessed from a single gateway and use a private subnet for everything else. We can use an API Gateway for this.
+
+## Observability Plan
+
+If money is not the problem and we don't have enough resources to setup a monitoring system, we can just use a hosted monitoring system like Datadog or New Relic.
+
+We can also use a local monitoring system like Prometheus or InfluxDB. Based on the comparison of the monitoring system on the Prometheus [page](https://prometheus.io/docs/introduction/comparison), I will choose Prometheus instead of InfluxDB. The reason is that I prefer to use another tool for logging like ELK instead of using InfluxDB for both use cases. Quoted from the Prometheus page, Prometheus has "more powerful query language, alerting, and notification functionality". It also has "higher availability and uptime for graphing and alerting".
+
+Based on above use case, I already included a `requestId` metadata on each request that comes in and comes out into/from the service. We can just use it to trace and/or identify the request between all related microservices.
+
+### Relational Tables
+
+![Relational Tables](docs/diagram/spenmo-wallet.png)
 
 ## Setup database
 

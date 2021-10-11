@@ -51,11 +51,5 @@ func createConfig(env string, level string) *zap.Config {
 		cfg.Level = zap.NewAtomicLevelAt(zap.ErrorLevel)
 	}
 
-	// if output_file != "" {
-	// 	cfg.OutputPaths = []string{
-	// 		output_file,
-	// 	}
-	// }
-
 	return &cfg
 }
