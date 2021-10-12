@@ -137,3 +137,29 @@ Targets:
   vendor             Copy all packages needed to support builds and tests into the vendor directory
   watch              Run the code with 'cosmtrek/air' to have automatic reload on changes
 ```
+
+## Testing
+
+Unfortunately, in this current version, I am only able to finish the integration part of the testing that will test the `service` part of the project. That's why, the only working Make target is `test-integration`. Since the only working test is the integration test, I didn't include the test in the Gitlab CI yaml file (it needs a working PostgreSQL). Below is the command to trigger the test and the current status of the test:
+
+```sh
+❯ make test-integration
+go test -race -run ".Integration" ./...
+?       gitlab.com/renodesper/spenmo-test/cmd                             [no test files]
+?       gitlab.com/renodesper/spenmo-test/endpoint                        [no test files]
+?       gitlab.com/renodesper/spenmo-test/middleware                      [no test files]
+?       gitlab.com/renodesper/spenmo-test/middleware/recover              [no test files]
+?       gitlab.com/renodesper/spenmo-test/repository                      [no test files]
+?       gitlab.com/renodesper/spenmo-test/repository/postgre              [no test files]
+ok      gitlab.com/renodesper/spenmo-test/service               (cached)
+ok      gitlab.com/renodesper/spenmo-test/transport/http        (cached)  [no tests to run]
+?       gitlab.com/renodesper/spenmo-test/util/card                       [no test files]
+?       gitlab.com/renodesper/spenmo-test/util/constant                   [no test files]
+?       gitlab.com/renodesper/spenmo-test/util/ctx                        [no test files]
+?       gitlab.com/renodesper/spenmo-test/util/error                      [no test files]
+?       gitlab.com/renodesper/spenmo-test/util/errors                     [no test files]
+?       gitlab.com/renodesper/spenmo-test/util/logger                     [no test files]
+?       gitlab.com/renodesper/spenmo-test/util/logger/noop                [no test files]
+?       gitlab.com/renodesper/spenmo-test/util/logger/zap                 [no test files]
+?       gitlab.com/renodesper/spenmo-test/util/response                   [no test files]
+```
