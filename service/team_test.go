@@ -138,6 +138,10 @@ func TestCreateTeam(t *testing.T) {
 			} else {
 				assert.NoError(t, err)
 				assert.NotEmpty(t, team)
+
+				team, err := svc.GetTeam(ctx, team.ID)
+				assert.NoError(t, err)
+				assert.NotEmpty(t, team)
 			}
 		})
 	}
@@ -182,6 +186,55 @@ func TestUpdateTeam(t *testing.T) {
 			} else {
 				assert.NoError(t, err)
 				assert.NotEmpty(t, team)
+
+				team, err := svc.GetTeam(ctx, team.ID)
+				assert.NoError(t, err)
+				assert.NotEmpty(t, team)
+				assert.Equal(t, tc.Name, team.Name)
+			}
+		})
+	}
+}
+
+func TestDeleteTeam(t *testing.T) {
+	reinitializeDB()
+
+	cases := map[string]struct {
+		ID            string
+		ExpectedError bool
+	}{
+		"SuccessDeleteTeam": {
+			ID:            "933efe12-2219-42df-bd51-a2e84888432d",
+			ExpectedError: false,
+		},
+		"FailedTeamNotFound": {
+			ID:            "dd95d24e-c934-4b67-8621-c7637be1dfd0",
+			ExpectedError: true,
+		},
+	}
+
+	for v, tc := range cases {
+		t.Run(v, func(t *testing.T) {
+			ctx := context.Background()
+			svc := NewTeamService(Log, DB)
+
+			teamID, err := uuid.Parse(tc.ID)
+			assert.NoError(t, err)
+
+			team, err := svc.DeleteTeam(ctx, teamID)
+
+			if tc.ExpectedError {
+				assert.Error(t, err)
+				assert.Empty(t, team)
+			} else {
+				assert.NoError(t, err)
+				assert.NotEmpty(t, team)
+
+				team, err := svc.GetTeam(ctx, team.ID)
+				assert.NoError(t, err)
+
+				isDeleted := true
+				assert.Equal(t, isDeleted, team.IsDeleted)
 			}
 		})
 	}
