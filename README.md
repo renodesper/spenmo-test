@@ -2,6 +2,8 @@
 
 This project was made especially as a requirement for passing the technical test in Spenmo. It is a simple golang application that allows us to create a team/individual wallet where each wallet may has multiple cards.
 
+In the `docs` folder, you can find the schema of the database and the api collection (I use Insomnia) for the project.
+
 ## Constraints and Assumptions
 
 - Client makes a read or write request

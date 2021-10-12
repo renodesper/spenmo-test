@@ -1,7 +1,5 @@
 @startuml spenmo-wallet
 
-!theme materia-outline
-
 ' Entity
 entity Team {
   * id: UUID
