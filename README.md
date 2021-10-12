@@ -48,6 +48,8 @@ We can also use a local monitoring system like Prometheus or InfluxDB. Based on 
 
 Based on above use case, I already included a `requestId` metadata on each request that comes in and comes out into/from the service. We can just use it to trace and/or identify the request between all related microservices.
 
+> An example of prometheus implementation can be seen by accessing `"/metrics"` endpoint.
+
 ### Relational Tables
 
 ![Relational Tables](docs/diagram/spenmo-wallet.png)
