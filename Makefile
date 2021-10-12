@@ -4,6 +4,7 @@ SERVICE_PORT?=8000
 DOCKER_REGISTRY?= #if set it should finished by /
 EXPORT_RESULT?=false # for CI please set EXPORT_RESULT to true
 BUILD_DIR=build
+POSTGRESQL_URL='postgres://user:password@127.0.0.1:5432/spenmo?sslmode=disable'
 
 GOCMD=go
 GOTEST=$(GOCMD) test
@@ -84,6 +85,10 @@ docker-release:
 watch:
 	test -s ${AIRPATH} || curl -sSfL https://raw.githubusercontent.com/cosmtrek/air/master/install.sh | sh -s -- -b $(GOPATH)/bin
 	${AIRPATH}
+
+clean-db:
+	migrate -database ${POSTGRESQL_URL} -path config/db/migrations down
+	migrate -database ${POSTGRESQL_URL} -path config/db/migrations up
 
 help:
 	@echo ''

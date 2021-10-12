@@ -104,6 +104,10 @@ func (s *WalletSvc) CreateWallet(ctx context.Context, payload *CreateWalletReque
 		MonthlyLimit: WALLET_MONTHLY_LIMIT_DEFAULT,
 	}
 
+	if payload.TeamID == uuid.Nil && payload.UserID == uuid.Nil {
+		return nil, errors.MissingWalletOwner
+	}
+
 	if payload.TeamID != uuid.Nil {
 		walletPayload.TeamID = payload.TeamID
 	}
