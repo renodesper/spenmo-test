@@ -2,6 +2,7 @@ package service
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"testing"
@@ -43,27 +44,34 @@ func loadConfig() {
 }
 
 func initService() {
-	dbUsername := viper.GetString("db.username")
-	dbPassword := viper.GetString("db.password")
-	dbHost := viper.GetString("db.host")
-	dbPort := viper.GetInt("db.port")
-	dbName := viper.GetString("db.name")
-
 	if testing.Verbose() {
 		z, _ := zap.CreateLogger("development", "debug")
 		Log = logger.New(z)
-		DB = postgre.NewPostgreClient(Log, dbUsername, dbPassword, dbHost, dbPort, dbName)
 	} else {
 		Log = logger.New(noop.CreateLogger())
-		DB = postgre.NewPostgreClient(Log, dbUsername, dbPassword, dbHost, dbPort, dbName)
 	}
 
-	var err error
-	M, err = migrate.New(
-		"file://../config/db/migrations",
-		"postgres://user:password@127.0.0.1:5432/spenmo?sslmode=disable")
-	if err != nil {
-		log.Fatal(err)
+	if !testing.Short() {
+		dbUsername := viper.GetString("db.username")
+		dbPassword := viper.GetString("db.password")
+		dbHost := viper.GetString("db.host")
+		dbPort := viper.GetInt("db.port")
+		dbName := viper.GetString("db.name")
+
+		if testing.Verbose() {
+			DB = postgre.NewPostgreClient(Log, dbUsername, dbPassword, dbHost, dbPort, dbName)
+		} else {
+			DB = postgre.NewPostgreClient(Log, dbUsername, dbPassword, dbHost, dbPort, dbName)
+		}
+
+		var err error
+		M, err = migrate.New(
+			"file://../config/db/migrations",
+			fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable", dbUsername, dbPassword, dbHost, dbPort, dbName),
+		)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }
 
