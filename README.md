@@ -123,15 +123,17 @@ Usage:
   make <target>
 
 Targets:
-  build            Build your project and put the output binary in build/spenmo-test
-  clean            Remove build related file
-  docker-build     Use the dockerfile to build the container (name: spenmo-test)
-  docker-release   Release the container "spenmo-test" with tag latest and 0.0.1
-  help             Show this help message
-  lint             Run all available linters
-  lint-dockerfile  Lint the Dockerfile using 'hadolint/hadolint'
-  lint-go          Lint all go files using 'golangci/golangci-lint'
-  test             Run the tests of the project
-  vendor           Copy all packages needed to support builds and tests into the vendor directory
-  watch            Run the code with 'cosmtrek/air' to have automatic reload on changes
+  build              Build your project and put the output binary in build/spenmo-test
+  clean              Remove build related file
+  docker-build       Use the dockerfile to build the container (name: spenmo-test)
+  docker-release     Release the container "spenmo-test" with tag latest and 0.0.1
+  help               Show this help message
+  lint               Run all available linters
+  lint-dockerfile    Lint the Dockerfile using 'hadolint/hadolint'
+  lint-go            Lint all go files using 'golangci/golangci-lint'
+  test               Run the tests of the project
+  test-unit          Run the unit tests of the project
+  test-integration   Run the integration tests of the project
+  vendor             Copy all packages needed to support builds and tests into the vendor directory
+  watch              Run the code with 'cosmtrek/air' to have automatic reload on changes
 ```
