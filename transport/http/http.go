@@ -5,13 +5,17 @@ import (
 	"net/http"
 
 	kitendpoint "github.com/go-kit/kit/endpoint"
+	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/go-playground/validator"
 	"github.com/go-zoo/bone"
 	jsoniter "github.com/json-iterator/go"
+	stdprometheus "github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/viper"
 	"gitlab.com/renodesper/spenmo-test/endpoint"
 	m "gitlab.com/renodesper/spenmo-test/middleware"
+	"gitlab.com/renodesper/spenmo-test/middleware/metric"
 	"gitlab.com/renodesper/spenmo-test/middleware/recover"
 	ctxUtil "gitlab.com/renodesper/spenmo-test/util/ctx"
 	e "gitlab.com/renodesper/spenmo-test/util/error"
@@ -46,9 +50,24 @@ func NewHTTPHandler(endpoints endpoint.Set, log logger.Logger) http.Handler {
 	}
 
 	// NOTE: Middlewares
+	fieldKeys := []string{"method", "error"}
+	requestCount := kitprometheus.NewCounterFrom(stdprometheus.CounterOpts{
+		Namespace: "spenmo",
+		Subsystem: "test",
+		Name:      "request_count",
+		Help:      "Number of requests received",
+	}, fieldKeys)
+	requestLatency := kitprometheus.NewSummaryFrom(stdprometheus.SummaryOpts{
+		Namespace: "spenmo",
+		Subsystem: "test",
+		Name:      "request_latency_microseconds",
+		Help:      "Total duration of requests in microseconds",
+	}, fieldKeys)
+
 	publicMiddlewares := m.Middlewares{
 		Before: []kitendpoint.Middleware{
 			recover.CreateMiddleware(log),
+			metric.CreateMiddleware(log, requestCount, requestLatency),
 		},
 		After: []kitendpoint.Middleware{},
 	}
@@ -142,6 +161,9 @@ func NewHTTPHandler(endpoints endpoint.Set, log logger.Logger) http.Handler {
 
 	DeleteCardsByWalletIDEndpoint := m.Chain(publicMiddlewares)(endpoints.DeleteCardsByWalletIDEndpoint)
 	r.Delete("/cards/wallets/:walletId", httptransport.NewServer(DeleteCardsByWalletIDEndpoint, decodeDeleteCardsByWalletIDRequest, encodeResponse, serverOpts...))
+
+	// NOTE: Prometheus metrics endpoint
+	r.Get("/metrics", promhttp.Handler())
 
 	return r
 }
