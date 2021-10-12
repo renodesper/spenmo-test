@@ -261,7 +261,6 @@ func TestDeleteTeamIntegration(t *testing.T) {
 				// NOTE: Related team members should be deleted
 				teamMembersPayload := GetTeamMembersRequest{
 					TeamID: team.ID,
-					UserID: uuid.Nil,
 				}
 				teamMembers, err := teamMemberSvc.GetTeamMembers(ctx, &teamMembersPayload)
 				assert.NoError(t, err)
