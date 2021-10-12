@@ -3,6 +3,7 @@ package http
 import (
 	"context"
 	"net/http"
+	"time"
 
 	kitendpoint "github.com/go-kit/kit/endpoint"
 	kitprometheus "github.com/go-kit/kit/metrics/prometheus"
@@ -10,12 +11,14 @@ import (
 	"github.com/go-playground/validator"
 	"github.com/go-zoo/bone"
 	jsoniter "github.com/json-iterator/go"
+	"github.com/juju/ratelimit"
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/viper"
 	"gitlab.com/renodesper/spenmo-test/endpoint"
 	m "gitlab.com/renodesper/spenmo-test/middleware"
 	"gitlab.com/renodesper/spenmo-test/middleware/metric"
+	"gitlab.com/renodesper/spenmo-test/middleware/ratelimiter"
 	"gitlab.com/renodesper/spenmo-test/middleware/recover"
 	ctxUtil "gitlab.com/renodesper/spenmo-test/util/ctx"
 	e "gitlab.com/renodesper/spenmo-test/util/error"
@@ -50,27 +53,7 @@ func NewHTTPHandler(endpoints endpoint.Set, log logger.Logger) http.Handler {
 	}
 
 	// NOTE: Middlewares
-	fieldKeys := []string{"method", "error"}
-	requestCount := kitprometheus.NewCounterFrom(stdprometheus.CounterOpts{
-		Namespace: "spenmo",
-		Subsystem: "test",
-		Name:      "request_count",
-		Help:      "Number of requests received",
-	}, fieldKeys)
-	requestLatency := kitprometheus.NewSummaryFrom(stdprometheus.SummaryOpts{
-		Namespace: "spenmo",
-		Subsystem: "test",
-		Name:      "request_latency_microseconds",
-		Help:      "Total duration of requests in microseconds",
-	}, fieldKeys)
-
-	publicMiddlewares := m.Middlewares{
-		Before: []kitendpoint.Middleware{
-			recover.CreateMiddleware(log),
-			metric.CreateMiddleware(log, requestCount, requestLatency),
-		},
-		After: []kitendpoint.Middleware{},
-	}
+	publicMiddlewares := prepareMiddleware(log)
 
 	// NOTE: Routes
 	r.NotFound(http.HandlerFunc(notFound))
@@ -210,4 +193,35 @@ func notFound(w http.ResponseWriter, r *http.Request) {
 		Errors: []e.Error{errors.StatusNotFound.WithoutStackTrace()},
 		Meta:   resp.PopulateMeta(r.Header.Get("X-Request-Id")),
 	})
+}
+
+func prepareMiddleware(log logger.Logger) m.Middlewares {
+	// NOTE: Rate Limiter
+	ratelimitBucket := ratelimit.NewBucket(1*time.Second, 5)
+
+	// NOTE: Metric
+	fieldKeys := []string{"method", "error"}
+	requestCount := kitprometheus.NewCounterFrom(stdprometheus.CounterOpts{
+		Namespace: "spenmo",
+		Subsystem: "test",
+		Name:      "request_count",
+		Help:      "Number of requests received",
+	}, fieldKeys)
+	requestLatency := kitprometheus.NewSummaryFrom(stdprometheus.SummaryOpts{
+		Namespace: "spenmo",
+		Subsystem: "test",
+		Name:      "request_latency_microseconds",
+		Help:      "Total duration of requests in microseconds",
+	}, fieldKeys)
+
+	publicMiddlewares := m.Middlewares{
+		Before: []kitendpoint.Middleware{
+			recover.CreateMiddleware(log),
+			ratelimiter.CreateMiddleware(log, ratelimitBucket),
+			metric.CreateMiddleware(log, requestCount, requestLatency),
+		},
+		After: []kitendpoint.Middleware{},
+	}
+
+	return publicMiddlewares
 }

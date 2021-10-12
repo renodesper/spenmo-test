@@ -11,6 +11,7 @@ var (
 	UnexpectedPanic  = error.NewError(http.StatusInternalServerError, "ER9999", fmt.Errorf("unexpected panic"))
 	StatusNotFound   = error.NewError(http.StatusNotFound, "ER9998", fmt.Errorf(http.StatusText(http.StatusNotFound)))
 	StatusBadRequest = error.NewError(http.StatusBadRequest, "ER9997", fmt.Errorf(http.StatusText(http.StatusBadRequest)))
+	LimitExceeded    = error.NewError(http.StatusTooManyRequests, "ER9996", fmt.Errorf("limit exceeded"))
 )
 
 var (

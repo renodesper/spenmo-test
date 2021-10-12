@@ -13,6 +13,7 @@ require (
 	github.com/google/uuid v1.2.0
 	github.com/iancoleman/strcase v0.1.3
 	github.com/json-iterator/go v1.1.10
+	github.com/juju/ratelimit v1.0.1
 	github.com/leodido/go-urn v1.2.0 // indirect
 	github.com/onsi/ginkgo v1.15.0 // indirect
 	github.com/onsi/gomega v1.10.5 // indirect
