@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -66,6 +67,47 @@ func TestGetAllTeams(t *testing.T) {
 			}
 
 			b, _ := json.Marshal(teams)
+			assert.Equal(t, test.ExpectedResponse, string(b))
+		})
+	}
+}
+
+func TestGetTeam(t *testing.T) {
+	cases := map[string]struct {
+		ID               string
+		ExpectedError    bool
+		ExpectedResponse string
+	}{
+		"SuccessGetTeam": {
+			ID:               "933efe12-2219-42df-bd51-a2e84888432d",
+			ExpectedError:    false,
+			ExpectedResponse: "{\"id\":\"933efe12-2219-42df-bd51-a2e84888432d\",\"name\":\"team1\",\"isDeleted\":false,\"createdAt\":\"2021-10-10T16:57:23.672096Z\",\"updatedAt\":\"0001-01-01T00:00:00Z\"}",
+		},
+		"FailedGetTeamNotFound": {
+			ID:               "933efe12-2219-42df-bd51-a2e84888432e",
+			ExpectedError:    true,
+			ExpectedResponse: "null",
+		},
+	}
+
+	for v, test := range cases {
+		t.Run(v, func(t *testing.T) {
+
+			ctx := context.Background()
+			svc := NewTeamService(Log, DB)
+
+			id, err := uuid.Parse(test.ID)
+			assert.NoError(t, err)
+
+			team, err := svc.GetTeam(ctx, id)
+
+			if test.ExpectedError {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+			}
+
+			b, _ := json.Marshal(team)
 			assert.Equal(t, test.ExpectedResponse, string(b))
 		})
 	}
