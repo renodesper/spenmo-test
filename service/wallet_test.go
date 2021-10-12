@@ -87,7 +87,7 @@ func TestGetWalletsIntegration(t *testing.T) {
 		Limit         int
 		ExpectedError bool
 	}{
-		"SuccessGetWalletByTeamID": {
+		"SuccessGetWalletsByTeamID": {
 			TeamID:        "933efe12-2219-42df-bd51-a2e84888432d",
 			SortBy:        "created_at",
 			Sort:          "DESC",
@@ -95,7 +95,7 @@ func TestGetWalletsIntegration(t *testing.T) {
 			Limit:         10,
 			ExpectedError: false,
 		},
-		"SuccessGetWalletByUserID": {
+		"SuccessGetWalletsByUserID": {
 			UserID:        "0e49e11c-660c-43c5-954e-ef9e89b45833",
 			SortBy:        "created_at",
 			Sort:          "DESC",
