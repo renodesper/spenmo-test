@@ -54,11 +54,7 @@ func NewTeamMemberService(log logger.Logger, db *pg.DB) TeamMemberService {
 
 func (s *TeamMemberSvc) GetTeamMembers(ctx context.Context, payload *GetTeamMembersRequest) ([]repository.TeamMember, error) {
 	teamMembers, err := s.TeamMember.GetTeamMembers(ctx, payload.TeamID, payload.UserID, payload.SortBy, payload.Sort, payload.Skip, payload.Limit)
-	if err != nil {
-		return nil, err
-	}
-
-	return teamMembers, nil
+	return teamMembers, err
 }
 
 func (s *TeamMemberSvc) CreateTeamMember(ctx context.Context, teamMemberPayload *CreateTeamMemberRequest) (*repository.TeamMember, error) {
@@ -97,27 +93,15 @@ func (s *TeamMemberSvc) CreateTeamMember(ctx context.Context, teamMemberPayload 
 
 func (s *TeamMemberSvc) DeleteTeamMember(ctx context.Context, teamID uuid.UUID, userID uuid.UUID) (*repository.TeamMember, error) {
 	teamMember, err := s.TeamMember.DeleteTeamMember(ctx, teamID, userID)
-	if err != nil {
-		return nil, err
-	}
-
-	return teamMember, nil
+	return teamMember, err
 }
 
 func (s *TeamMemberSvc) DeleteTeamMembersByTeamID(ctx context.Context, teamID uuid.UUID) ([]repository.TeamMember, error) {
 	teamMembers, err := s.TeamMember.DeleteTeamMembersByTeamID(ctx, teamID)
-	if err != nil {
-		return nil, err
-	}
-
-	return teamMembers, nil
+	return teamMembers, err
 }
 
 func (s *TeamMemberSvc) DeleteTeamMembersByUserID(ctx context.Context, userID uuid.UUID) ([]repository.TeamMember, error) {
 	teamMembers, err := s.TeamMember.DeleteTeamMembersByUserID(ctx, userID)
-	if err != nil {
-		return nil, err
-	}
-
-	return teamMembers, nil
+	return teamMembers, err
 }

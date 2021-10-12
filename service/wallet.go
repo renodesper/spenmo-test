@@ -15,6 +15,7 @@ type (
 	// WalletService ...
 	WalletService interface {
 		GetAllWallets(ctx context.Context, sortBy string, sort string, skip int, limit int) ([]repository.Wallet, error)
+		GetWallets(ctx context.Context, payload *GetWalletsRequest) ([]repository.Wallet, error)
 		GetWallet(ctx context.Context, walletID uuid.UUID) (*repository.Wallet, error)
 		CreateWallet(ctx context.Context, payload *CreateWalletRequest) (*repository.Wallet, error)
 		UpdateWallet(ctx context.Context, walletID uuid.UUID, payload *UpdateWalletRequest) (*repository.Wallet, error)
@@ -27,6 +28,15 @@ type (
 		Log     logger.Logger
 		Wallet  postgre.WalletRepository
 		CardSvc CardService
+	}
+
+	GetWalletsRequest struct {
+		TeamID uuid.UUID
+		UserID uuid.UUID
+		SortBy string
+		Sort   string
+		Skip   int
+		Limit  int
 	}
 
 	CreateWalletRequest struct {
@@ -73,6 +83,11 @@ func (s *WalletSvc) GetAllWallets(ctx context.Context, sortBy string, sort strin
 	}
 
 	return wallets, nil
+}
+
+func (s *WalletSvc) GetWallets(ctx context.Context, payload *GetWalletsRequest) ([]repository.Wallet, error) {
+	wallets, err := s.Wallet.GetWallets(ctx, payload.TeamID, payload.UserID, payload.SortBy, payload.Sort, payload.Skip, payload.Limit)
+	return wallets, err
 }
 
 func (s *WalletSvc) GetWallet(ctx context.Context, walletID uuid.UUID) (*repository.Wallet, error) {

@@ -217,6 +217,9 @@ func TestDeleteTeam(t *testing.T) {
 		t.Run(v, func(t *testing.T) {
 			ctx := context.Background()
 			svc := NewTeamService(Log, DB)
+			teamMemberSvc := NewTeamMemberService(Log, DB)
+			walletSvc := NewWalletService(Log, DB)
+			cardSvc := NewCardService(Log, DB)
 
 			teamID, err := uuid.Parse(tc.ID)
 			assert.NoError(t, err)
@@ -233,8 +236,44 @@ func TestDeleteTeam(t *testing.T) {
 				team, err := svc.GetTeam(ctx, team.ID)
 				assert.NoError(t, err)
 
-				isDeleted := true
-				assert.Equal(t, isDeleted, team.IsDeleted)
+				assert.Equal(t, true, team.IsDeleted)
+
+				// NOTE: Related team members should be deleted
+				teamMembersPayload := GetTeamMembersRequest{
+					TeamID: team.ID,
+					UserID: uuid.Nil,
+				}
+				teamMembers, err := teamMemberSvc.GetTeamMembers(ctx, &teamMembersPayload)
+				assert.NoError(t, err)
+				assert.NotEmpty(t, teamMembers)
+
+				for _, teamMember := range teamMembers {
+					assert.Equal(t, true, teamMember.IsDeleted)
+				}
+
+				// NOTE: Related wallets should be deleted
+				walletsPayload := GetWalletsRequest{
+					TeamID: team.ID,
+				}
+				wallets, err := walletSvc.GetWallets(ctx, &walletsPayload)
+				assert.NoError(t, err)
+				assert.NotEmpty(t, wallets)
+
+				for _, wallet := range wallets {
+					assert.Equal(t, true, wallet.IsDeleted)
+
+					// NOTE: Related cards should be deleted
+					cardsPayload := GetCardsRequest{
+						WalletID: wallet.ID,
+					}
+					cards, err := cardSvc.GetCards(ctx, &cardsPayload)
+					assert.NoError(t, err)
+					assert.NotEmpty(t, cards)
+
+					for _, card := range cards {
+						assert.Equal(t, true, card.IsDeleted)
+					}
+				}
 			}
 		})
 	}

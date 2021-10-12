@@ -15,6 +15,7 @@ import (
 type (
 	WalletRepository interface {
 		GetAllWallets(ctx context.Context, sortBy string, sort string, skip int, limit int) ([]repository.Wallet, error)
+		GetWallets(ctx context.Context, teamID uuid.UUID, userID uuid.UUID, sortBy string, sort string, skip int, limit int) ([]repository.Wallet, error)
 		GetWalletByID(ctx context.Context, walletID uuid.UUID) (*repository.Wallet, error)
 		CreateWallet(ctx context.Context, walletPayload *repository.Wallet) (*repository.Wallet, error)
 		UpdateWallet(ctx context.Context, walletID uuid.UUID, walletPayload map[string]interface{}) (*repository.Wallet, error)
@@ -54,6 +55,35 @@ func (r *WalletRepo) GetAllWallets(ctx context.Context, sortBy string, sort stri
 	order := fmt.Sprintf("%s %s", sortBy, sort)
 
 	err := r.Db.WithContext(ctx).Model(&wallets).Limit(limit).Offset(skip).Order(order).Select()
+	if err != nil {
+		return nil, errors.FailedWalletsFetch.AppendError(err)
+	}
+
+	return wallets, nil
+}
+
+func (r *WalletRepo) GetWallets(ctx context.Context, teamID uuid.UUID, userID uuid.UUID, sortBy string, sort string, skip int, limit int) ([]repository.Wallet, error) {
+	wallets := []repository.Wallet{}
+
+	if sortBy == "" {
+		sortBy = "created_at"
+	}
+	if sort == "" {
+		sort = "DESC"
+	}
+	order := fmt.Sprintf("%s %s", sortBy, sort)
+
+	sql := r.Db.WithContext(ctx).Model(&wallets)
+
+	if teamID != uuid.Nil {
+		sql = sql.Where("team_id = ?", teamID)
+	}
+
+	if userID != uuid.Nil {
+		sql = sql.Where("user_id = ?", userID)
+	}
+
+	err := sql.Limit(limit).Offset(skip).Order(order).Select()
 	if err != nil {
 		return nil, errors.FailedWalletsFetch.AppendError(err)
 	}

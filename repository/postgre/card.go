@@ -15,6 +15,7 @@ import (
 type (
 	CardRepository interface {
 		GetAllCards(ctx context.Context, sortBy string, sort string, skip int, limit int) ([]repository.Card, error)
+		GetCards(ctx context.Context, walletID uuid.UUID, sortBy string, sort string, skip int, limit int) ([]repository.Card, error)
 		GetCardByID(ctx context.Context, cardID uuid.UUID) (*repository.Card, error)
 		GetCardByCardNo(ctx context.Context, cardNo string) (*repository.Card, error)
 		CreateCard(ctx context.Context, cardPayload *repository.Card) (*repository.Card, error)
@@ -54,6 +55,31 @@ func (r *CardRepo) GetAllCards(ctx context.Context, sortBy string, sort string, 
 	order := fmt.Sprintf("%s %s", sortBy, sort)
 
 	err := r.Db.WithContext(ctx).Model(&cards).Limit(limit).Offset(skip).Order(order).Select()
+	if err != nil {
+		return nil, errors.FailedCardsFetch.AppendError(err)
+	}
+
+	return cards, nil
+}
+
+func (r *CardRepo) GetCards(ctx context.Context, walletID uuid.UUID, sortBy string, sort string, skip int, limit int) ([]repository.Card, error) {
+	cards := []repository.Card{}
+
+	if sortBy == "" {
+		sortBy = "created_at"
+	}
+	if sort == "" {
+		sort = "DESC"
+	}
+	order := fmt.Sprintf("%s %s", sortBy, sort)
+
+	sql := r.Db.WithContext(ctx).Model(&cards)
+
+	if walletID != uuid.Nil {
+		sql = sql.Where("wallet_id = ?", walletID)
+	}
+
+	err := sql.Limit(limit).Offset(skip).Order(order).Select()
 	if err != nil {
 		return nil, errors.FailedCardsFetch.AppendError(err)
 	}

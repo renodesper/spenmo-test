@@ -16,8 +16,6 @@ type (
 	TeamMemberRepository interface {
 		GetTeamMember(ctx context.Context, teamID uuid.UUID, userID uuid.UUID) (*repository.TeamMember, error)
 		GetTeamMembers(ctx context.Context, teamID uuid.UUID, userID uuid.UUID, sortBy string, sort string, skip int, limit int) ([]repository.TeamMember, error)
-		// GetTeamMembersByTeamID(ctx context.Context, teamID uuid.UUID, sortBy string, sort string, skip int, limit int) ([]repository.TeamMember, error)
-		// GetTeamMembersByUserID(ctx context.Context, userID uuid.UUID, sortBy string, sort string, skip int, limit int) ([]repository.TeamMember, error)
 		CreateTeamMember(ctx context.Context, teamMemberPayload *repository.TeamMember) (*repository.TeamMember, error)
 		DeleteTeamMember(ctx context.Context, teamID uuid.UUID, userID uuid.UUID) (*repository.TeamMember, error)
 		DeleteTeamMembersByTeamID(ctx context.Context, teamID uuid.UUID) ([]repository.TeamMember, error)

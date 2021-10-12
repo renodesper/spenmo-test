@@ -19,6 +19,7 @@ type (
 	// CardService ...
 	CardService interface {
 		GetAllCards(ctx context.Context, sortBy string, sort string, skip int, limit int) ([]repository.Card, error)
+		GetCards(ctx context.Context, payload *GetCardsRequest) ([]repository.Card, error)
 		GetCard(ctx context.Context, cardID uuid.UUID) (*repository.Card, error)
 		CreateCard(ctx context.Context, payload *CreateCardRequest) (*repository.Card, error)
 		UpdateCard(ctx context.Context, cardID uuid.UUID, payload *UpdateCardRequest) (*repository.Card, error)
@@ -29,6 +30,14 @@ type (
 	CardSvc struct {
 		Log  logger.Logger
 		Card postgre.CardRepository
+	}
+
+	GetCardsRequest struct {
+		WalletID uuid.UUID
+		SortBy   string
+		Sort     string
+		Skip     int
+		Limit    int
 	}
 
 	CreateCardRequest struct {
@@ -77,6 +86,11 @@ func (s *CardSvc) GetAllCards(ctx context.Context, sortBy string, sort string, s
 	}
 
 	return cards, nil
+}
+
+func (s *CardSvc) GetCards(ctx context.Context, payload *GetCardsRequest) ([]repository.Card, error) {
+	cards, err := s.Card.GetCards(ctx, payload.WalletID, payload.SortBy, payload.Sort, payload.Skip, payload.Limit)
+	return cards, err
 }
 
 func (s *CardSvc) GetCard(ctx context.Context, cardID uuid.UUID) (*repository.Card, error) {
