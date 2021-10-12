@@ -93,8 +93,8 @@ func (s *TeamSvc) CreateTeam(ctx context.Context, payload *CreateTeamRequest) (*
 func (s *TeamSvc) UpdateTeam(ctx context.Context, teamID uuid.UUID, payload *UpdateTeamRequest) (*repository.Team, error) {
 	team, _ := s.Team.GetTeamByID(ctx, teamID)
 
-	if team != nil && teamID != team.ID {
-		return nil, errors.FailedTeamExist
+	if team == nil {
+		return nil, errors.FailedTeamNotFound
 	}
 
 	var teamPayload = make(map[string]interface{})

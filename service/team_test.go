@@ -71,9 +71,8 @@ func TestGetAllTeams(t *testing.T) {
 
 func TestGetTeam(t *testing.T) {
 	cases := map[string]struct {
-		ID               string
-		ExpectedError    bool
-		ExpectedResponse string
+		ID            string
+		ExpectedError bool
 	}{
 		"SuccessGetTeam": {
 			ID:            "933efe12-2219-42df-bd51-a2e84888432d",
@@ -107,10 +106,11 @@ func TestGetTeam(t *testing.T) {
 }
 
 func TestCreateTeam(t *testing.T) {
+	reinitializeDB()
+
 	cases := map[string]struct {
-		Name             string
-		ExpectedError    bool
-		ExpectedResponse string
+		Name          string
+		ExpectedError bool
 	}{
 		"SuccessCreateTeam": {
 			Name:          "team100",
@@ -131,6 +131,50 @@ func TestCreateTeam(t *testing.T) {
 				Name: tc.Name,
 			}
 			team, err := svc.CreateTeam(ctx, &payload)
+
+			if tc.ExpectedError {
+				assert.Error(t, err)
+				assert.Empty(t, team)
+			} else {
+				assert.NoError(t, err)
+				assert.NotEmpty(t, team)
+			}
+		})
+	}
+}
+
+func TestUpdateTeam(t *testing.T) {
+	reinitializeDB()
+
+	cases := map[string]struct {
+		ID            string
+		Name          string
+		ExpectedError bool
+	}{
+		"SuccessUpdateTeam": {
+			ID:            "933efe12-2219-42df-bd51-a2e84888432d",
+			Name:          "team100",
+			ExpectedError: false,
+		},
+		"FailedTeamNotFound": {
+			ID:            "dd95d24e-c934-4b67-8621-c7637be1dfd0",
+			Name:          "team100",
+			ExpectedError: true,
+		},
+	}
+
+	for v, tc := range cases {
+		t.Run(v, func(t *testing.T) {
+			ctx := context.Background()
+			svc := NewTeamService(Log, DB)
+
+			teamID, err := uuid.Parse(tc.ID)
+			assert.NoError(t, err)
+
+			payload := UpdateTeamRequest{
+				Name: tc.Name,
+			}
+			team, err := svc.UpdateTeam(ctx, teamID, &payload)
 
 			if tc.ExpectedError {
 				assert.Error(t, err)
