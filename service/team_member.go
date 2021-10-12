@@ -84,11 +84,7 @@ func (s *TeamMemberSvc) CreateTeamMember(ctx context.Context, teamMemberPayload 
 		UserID: teamMemberPayload.UserID,
 	}
 	teamMember, err := s.TeamMember.CreateTeamMember(ctx, &teamPayload)
-	if err != nil {
-		return nil, err
-	}
-
-	return teamMember, nil
+	return teamMember, err
 }
 
 func (s *TeamMemberSvc) DeleteTeamMember(ctx context.Context, teamID uuid.UUID, userID uuid.UUID) (*repository.TeamMember, error) {
