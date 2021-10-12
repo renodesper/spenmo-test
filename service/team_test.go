@@ -8,7 +8,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGetAllTeams(t *testing.T) {
+func TestGetAllTeamsIntegration(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test")
+	}
+
 	cases := map[string]struct {
 		SortBy        string
 		Sort          string
@@ -69,7 +73,11 @@ func TestGetAllTeams(t *testing.T) {
 	}
 }
 
-func TestGetTeam(t *testing.T) {
+func TestGetTeamIntegration(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test")
+	}
+
 	cases := map[string]struct {
 		ID            string
 		ExpectedError bool
@@ -105,7 +113,11 @@ func TestGetTeam(t *testing.T) {
 	}
 }
 
-func TestCreateTeam(t *testing.T) {
+func TestCreateTeamIntegration(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test")
+	}
+
 	reinitializeDB()
 
 	cases := map[string]struct {
@@ -147,7 +159,11 @@ func TestCreateTeam(t *testing.T) {
 	}
 }
 
-func TestUpdateTeam(t *testing.T) {
+func TestUpdateTeamIntegration(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test")
+	}
+
 	reinitializeDB()
 
 	cases := map[string]struct {
@@ -196,7 +212,11 @@ func TestUpdateTeam(t *testing.T) {
 	}
 }
 
-func TestDeleteTeam(t *testing.T) {
+func TestDeleteTeamIntegration(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test")
+	}
+
 	reinitializeDB()
 
 	cases := map[string]struct {

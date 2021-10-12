@@ -44,7 +44,21 @@ ifeq ($(EXPORT_RESULT), true)
 	GO111MODULE=off go get -u github.com/jstemmer/go-junit-report
 	$(eval OUTPUT_OPTIONS = | tee /dev/tty | go-junit-report -set-exit-code > junit-report.xml)
 endif
-	$(GOTEST) -v -race ./... $(OUTPUT_OPTIONS)
+	$(GOTEST) -race ./... $(OUTPUT_OPTIONS)
+
+test-unit:
+ifeq ($(EXPORT_RESULT), true)
+	GO111MODULE=off go get -u github.com/jstemmer/go-junit-report
+	$(eval OUTPUT_OPTIONS = | tee /dev/tty | go-junit-report -set-exit-code > junit-report.xml)
+endif
+	$(GOTEST) -short -race ./... $(OUTPUT_OPTIONS)
+
+test-integration:
+ifeq ($(EXPORT_RESULT), true)
+	GO111MODULE=off go get -u github.com/jstemmer/go-junit-report
+	$(eval OUTPUT_OPTIONS = | tee /dev/tty | go-junit-report -set-exit-code > junit-report.xml)
+endif
+	$(GOTEST) -race -run ".Integration" ./... $(OUTPUT_OPTIONS)
 
 vendor:
 	$(GOCMD) mod vendor
@@ -77,14 +91,16 @@ help:
 	@echo '  ${YELLOW}make${RESET} ${GREEN}<target>${RESET}'
 	@echo ''
 	@echo 'Targets:'
-	@echo "  ${YELLOW}build           ${RESET} ${GREEN}Build your project and put the output binary in $(BUILD_DIR)/$(BINARY_NAME)${RESET}"
-	@echo "  ${YELLOW}clean           ${RESET} ${GREEN}Remove build related file${RESET}"
-	@echo "  ${YELLOW}docker-build    ${RESET} ${GREEN}Use the dockerfile to build the container (name: $(BINARY_NAME))${RESET}"
-	@echo "  ${YELLOW}docker-release  ${RESET} ${GREEN}Release the container \"$(DOCKER_REGISTRY)$(BINARY_NAME)\" with tag latest and $(VERSION) ${RESET}"
-	@echo "  ${YELLOW}help            ${RESET} ${GREEN}Show this help message${RESET}"
-	@echo "  ${YELLOW}lint            ${RESET} ${GREEN}Run all available linters${RESET}"
-	@echo "  ${YELLOW}lint-dockerfile ${RESET} ${GREEN}Lint the Dockerfile using 'hadolint/hadolint'${RESET}"
-	@echo "  ${YELLOW}lint-go         ${RESET} ${GREEN}Lint all go files using 'golangci/golangci-lint'${RESET}"
-	@echo "  ${YELLOW}test            ${RESET} ${GREEN}Run the tests of the project${RESET}"
-	@echo "  ${YELLOW}vendor          ${RESET} ${GREEN}Copy all packages needed to support builds and tests into the vendor directory${RESET}"
-	@echo "  ${YELLOW}watch           ${RESET} ${GREEN}Run the code with 'cosmtrek/air' to have automatic reload on changes${RESET}"
+	@echo "  ${YELLOW}build             ${RESET} ${GREEN}Build your project and put the output binary in $(BUILD_DIR)/$(BINARY_NAME)${RESET}"
+	@echo "  ${YELLOW}clean             ${RESET} ${GREEN}Remove build related file${RESET}"
+	@echo "  ${YELLOW}docker-build      ${RESET} ${GREEN}Use the dockerfile to build the container (name: $(BINARY_NAME))${RESET}"
+	@echo "  ${YELLOW}docker-release    ${RESET} ${GREEN}Release the container \"$(DOCKER_REGISTRY)$(BINARY_NAME)\" with tag latest and $(VERSION) ${RESET}"
+	@echo "  ${YELLOW}help              ${RESET} ${GREEN}Show this help message${RESET}"
+	@echo "  ${YELLOW}lint              ${RESET} ${GREEN}Run all available linters${RESET}"
+	@echo "  ${YELLOW}lint-dockerfile   ${RESET} ${GREEN}Lint the Dockerfile using 'hadolint/hadolint'${RESET}"
+	@echo "  ${YELLOW}lint-go           ${RESET} ${GREEN}Lint all go files using 'golangci/golangci-lint'${RESET}"
+	@echo "  ${YELLOW}test              ${RESET} ${GREEN}Run the tests of the project${RESET}"
+	@echo "  ${YELLOW}test-unit         ${RESET} ${GREEN}Run the unit tests of the project${RESET}"
+	@echo "  ${YELLOW}test-integration  ${RESET} ${GREEN}Run the integration tests of the project${RESET}"
+	@echo "  ${YELLOW}vendor            ${RESET} ${GREEN}Copy all packages needed to support builds and tests into the vendor directory${RESET}"
+	@echo "  ${YELLOW}watch             ${RESET} ${GREEN}Run the code with 'cosmtrek/air' to have automatic reload on changes${RESET}"
