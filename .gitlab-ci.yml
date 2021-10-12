@@ -14,7 +14,7 @@ unit-test-job:    # This job runs in the test stage.
     - echo "Installing dependencies..."
     - apk add --no-cache build-base make gcc git
     - echo "Running unit tests..."
-    - make test
+    - make test-unit
 
 lint-test-job:    # This job also runs in the test stage.
   stage: test     # It can run at the same time as unit-test-job (in parallel).
